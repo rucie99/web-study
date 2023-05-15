@@ -5,6 +5,108 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <script>
+
+function sum_cal() 
+{
+  var sum = 0;
+  var i = 1;
+  var calculation = "";
+  while (i <= 100) {
+
+    sum = sum + i
+    i= i+1
+
+    calculation = calculation +sum +  "<br>"
+    document.getElementById("sum").innerHTML = sum;
+    document.getElementById("calculation").innerHTML = calculation;
+
+  }  
+}
+
+
+function sum_cal2() 
+{
+  var sum = 0;
+  var i = 0;
+  var calculation = "";
+  while (i <= 100) {
+
+    sum = sum + i
+    i= i+2
+
+    calculation = calculation +sum +  "<br>"
+    document.getElementById("sum").innerHTML = sum;
+    document.getElementById("calculation").innerHTML = calculation;
+
+  }  
+}
+
+function sum_cal3() 
+{
+  var sum = 0;
+  var i = 100;
+  var calculation = "";
+  while (i >= 1) {
+
+  
+
+    calculation = calculation + i +  "<br>"
+    document.getElementById("sum").innerHTML = sum;
+    document.getElementById("calculation").innerHTML = calculation;
+    i= i-1
+  }  
+}
+
+
+function sum_cal4() 
+{
+  var sum = 0;
+  var i = 1;
+  var calculation = "";
+  while (i <= 100) {
+
+    if(i%2==0){
+
+      calculation = "<font color =red>" + calculation + i +  "</font><br>"
+    }
+    else{
+      calculation = "<font color =black>" + calculation + i +  "</font><br>"
+    }
+    document.getElementById("sum").innerHTML = sum;
+    document.getElementById("calculation").innerHTML = calculation;
+    i= i+1
+  }  
+}
+
+
+
+function sum_cal5() 
+{
+  var sum = 0;
+  var i = 1;
+  var calculation = "";
+  while (i <= 100) {
+
+    if(i%3==0){
+
+      calculation = calculation + "짝<br>"
+    }
+    else{
+      calculation = calculation + i +  "<br>"
+    }
+    document.getElementById("sum").innerHTML = sum;
+    document.getElementById("calculation").innerHTML = calculation;
+    i= i+1
+  }  
+}
+
+
+
+
+
+</script>
+
   <h1><a href="index.html">WEB</a></h1>
   <input type="button" value="night" onclick="
   document.querySelector('body').style.backgroundColor='black';
@@ -39,10 +141,23 @@
       <li><a href="3.html" style="color: cornflowerblue;">JavaScript</a></li>
       <li><a href="4.html" >구구단</a></li>
     </ol>
+    
     <div id="article">
       <h2>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nulla iusto, animi itaque, qui aliquid quaerat omnis voluptatibus repellendus ut velit, reiciendis incidunt aut! Molestias corrupti autem optio? Blanditiis, omnis voluptatibus?  caHTML</h2>
-    </div>
-  </div>
+    
+      
+<button onclick="sum_cal()">1-100 계산</button>
+<button onclick="sum_cal2()">1-100 짝수계산</button>
+<button onclick="sum_cal3()">100-1 거꾸로 출력</button>
+<button onclick="sum_cal4()">1-100 홀짝 컬러출력</button>
+<button onclick="sum_cal5()">3의배수 짝짝</button>
+<p>합계: <span id="sum"></span></p>
+
+<p>계산 과정:</p>
+<span id="calculation"></span>
+
+</div>
+</div>
 
   
   
