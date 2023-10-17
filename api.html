@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Call with HTML & JS</title>
+</head>
+<body>
+
+<button onclick="fetchData()">Fetch Data from API</button>
+<pre id="apiResponse"></pre>
+
+<script>
+    function fetchData() {
+        // API 정보
+        var endpoint = "https://dataapi.wehago.com/data/?dataset_key=DATASET_KOITA_6&from=0&to=499";
+        var apiKey = "apicode";
+        var apiValue = "1e04ced5-3b1c-40ce-a473-9c0704b2321f"; // 여기에 서비스키 값을 입력하세요.
+
+        // Fetch API 사용
+        fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                [apiKey]: encodeURI(apiValue) // UTF-8로 인코딩
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Failed to fetch data");
+            }
+        })
+        .then(data => {
+            document.getElementById('apiResponse').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            document.getElementById('apiResponse').textContent = "Error: " + error.message;
+        });
+    }
+</script>
+
+</body>
+</html>
