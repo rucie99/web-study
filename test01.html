@@ -39,11 +39,8 @@
         // CryptoJS 라이브러리를 사용하여 서명을 생성하는 함수
         function generateSignature(authToken, transactionId, timestamp, url, hashKey) {
     var message = authToken + transactionId + timestamp + url;
-    console.log('Message:', message); // 확인용 로깅
     var hash = CryptoJS.HmacSHA256(message, hashKey);
-    console.log('Hash:', hash); // 확인용 로깅
-    var signature = CryptoJS.enc.Base64.stringify(hash);
-    console.log('Signature:', signature); // 확인용 로깅
+   var signature = CryptoJS.enc.Base64.stringify(hash);
             return signature;
         }
 
@@ -75,6 +72,7 @@
                         var tokenResponse = JSON.parse(tokenRequest.responseText);
                         authToken = tokenResponse.token;
                         hashKey = tokenResponse.hash_key;
+    console.log('hashKey:', hashKey); // 확인용 로깅
 
                         var signature = generateSignature(authToken, transactionId, timestamp, loginApiUrl, hashKey);
 
