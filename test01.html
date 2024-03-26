@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+</head>
+<body>
+    <h2>Login Form</h2>
+    <form id="loginForm">
+        <label for="domain">Domain:</label><br>
+        <input type="text" id="domain" name="domain"><br>
+        <label for="id">ID:</label><br>
+        <input type="text" id="id" name="id"><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br>
+        <label for="groupSeq">Group Sequence:</label><br>
+        <input type="text" id="groupSeq" name="groupSeq"><br><br>
+        <input type="button" value="Login" onclick="login()">
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        // 랜덤한 트랜잭션 ID를 생성하는 함수
+        function getTransactionId() {
+            var transactionId = "";
+            var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (var i = 0; i < 32; i++) {
+                transactionId += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return transactionId;
+        }
+
+        // 현재 타임스탬프를 가져오는 함수
+        function getTimestamp() {
+            return Math.floor(new Date().getTime() / 1000).toString();
+        }
+
+        // CryptoJS 라이브러리를 사용하여 서명을 생성하는 함수
+        function generateSignature(authToken, transactionId, timestamp, url, hashKey) {
+            var message = authToken + transactionId + timestamp + url;
+            var hash = CryptoJS.HmacSHA256(message, hashKey);
+            var signature = CryptoJS.enc.Base64.stringify(hash);
+            return signature;
+        }
+
+        // 로그인을 수행하는 함수
+        function login() {
+            var domain = document.getElementById("domain").value;
+            var id = document.getElementById("id").value;
+            var password = document.getElementById("password").value;
+            var groupSeq = document.getElementById("groupSeq").value;
+            var loginApiUrl = "/gw/gw050A02"; // 로그인 API URL
+
+            var transactionId = getTransactionId();
+            var timestamp = getTimestamp();
+
+            var loginUrl = domain + loginApiUrl + "?loginId=" + encodeURIComponent(btoa(id)) +
+                           "&password=" + encodeURIComponent(btoa(password)) +
+                           "&groupSeq=" + groupSeq +
+                           "&simpleLoginCheck=Y";
+
+            var authToken, hashKey;
+
+            var tokenRequest = new XMLHttpRequest();
+            tokenRequest.open("GET", domain + "/get_token/?url=" + loginApiUrl, true);
+            tokenRequest.setRequestHeader("Content-Type", "application/json");
+            tokenRequest.setRequestHeader("transaction-id", transactionId);
+            tokenRequest.onreadystatechange = function () {
+                if (tokenRequest.readyState === XMLHttpRequest.DONE) {
+                    if (tokenRequest.status === 200) {
+                        var tokenResponse = JSON.parse(tokenRequest.responseText);
+                        authToken = tokenResponse.token;
+                        hashKey = tokenResponse.hash_key;
+
+                        var signature = generateSignature(authToken, transactionId, timestamp, loginApiUrl, hashKey);
+
+                        var loginRequest = new XMLHttpRequest();
+                        loginRequest.open("POST", loginUrl, true);
+                        loginRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                        loginRequest.setRequestHeader("transaction-id", transactionId);
+                        loginRequest.setRequestHeader("timestamp", timestamp);
+                        loginRequest.setRequestHeader("Authorization", "Bearer " + authToken);
+                        loginRequest.setRequestHeader("signature", signature);
+                        loginRequest.onreadystatechange = function () {
+                            if (loginRequest.readyState === XMLHttpRequest.DONE) {
+                                if (loginRequest.status === 200) {
+                                    // 로그인 성공 시 처리할 코드를 여기에 추가하세요.
+                                    var responseData = loginRequest.responseText;
+                                    console.log("Login successful! Response: ", responseData);
+                                } else {
+                                    // 로그인 실패 시 처리할 코드를 여기에 추가하세요.
+                                    console.error("Login failed! Status: ", loginRequest.status);
+                                }
+                            }
+                        };
+                        loginRequest.send();
+                    } else {
+                        console.error("Error getting token: " + tokenRequest.statusText);
+                    }
+                }
+            };
+            tokenRequest.send();
+        }
+    </script>
+</body>
+</html>
