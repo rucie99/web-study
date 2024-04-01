@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    <link rel="stylesheet" href="css/tabulator.css">
     <title>Login Form</title>
 </head>
 <body>
     <h2>API 테스트페이지</h2>
+    <script src="js/tabulator.min.js"></script>
     <form id="loginForm">
         <label for="domain">Domain:</label><br>
         <input type="text" id="domain" name="domain" value="https://gwa.giduzon.co.kr"><br>
@@ -38,10 +40,10 @@
         <textarea id="requestData" rows="4" cols="100"></textarea>
     </div>
     <div>
-        <label for="responseData">반응데이터:</label><br>
+        <label for="responseData">응답데이터:</label><br>
         <textarea id="responseData" rows="4" cols="100" readonly></textarea>
     </div>
-
+    <div id="tabulator"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script>
 
@@ -68,7 +70,7 @@
       "menuLnSq": 1,
       "isuDoc": "품의내역예제",
       "drcrFg": "4",
-      "acctCd": "1010000",
+      "acctCd": "4010001",
       "trCd": "0001",
       "trNm": "1",
       "acctAm": 10000.0,
@@ -110,15 +112,60 @@
       "billAm": 0.0,
       "ctNb": "",
       "jeonjaYn": "1"
+    },
+    {
+      "inDivCd": "1000",
+      "menuDt": "20240118",
+      "menuSq": 1,
+      "menuLnSq": 2,
+      "isuDoc": "품의내역예제",
+      "drcrFg": "3",
+      "acctCd": "1080000",
+      "trCd": "0001",
+      "trNm": "1",
+      "acctAm": 11000.0,
+      "attrCd": "1",
+      "rmkDc": "적요",
+      "docuTy": "2",
+      "vatDivCd": "1000",
+      "issDt": "20230316",
+      "taxFg": "",
+      "nonsubTy": "",
+      "supAm": 11000.0,
+      "dummy1": "",
+      "cashAm": 0.0,
+      "billAm": 0.0,
+      "ctNb": "",
+      "jeonjaYn": "1"
     }
   ]
 
                }
                url = "/financial/acb6010/sendData";
+
+
             }
 
             // JSON 데이터를 문자열로 변환하여 requestData 텍스트 창에 설정
             document.getElementById("requestData").value = JSON.stringify(requestData, null, 2);
+
+            // JSON 문자열을 JavaScript 객체로 변환
+         
+            const table = new Tabulator("#tabulator", {
+            height:"200px",
+            data: requestData.data,
+            // 컬럼 정의
+            columns: [
+                {title: "거래일자", field: "menuDt"},
+                {title: "거래구분", field: "drcrFg"},
+                {title: "계좌코드", field: "acctCd"},
+                {title: "거래내역", field: "isuDoc"},
+                {title: "세무구분", field: "taxFg"},
+                {title: "거래처코드", field: "trCd"},
+                {title: "거래금액", field: "acctAm", type: "money"},
+            ],
+            });
+
         }
 
         // 랜덤한 트랜잭션 ID를 생성하는 함수
