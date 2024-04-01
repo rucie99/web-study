@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Login Form</title>
+</head>
+<body>
+    <h2>API 테스트페이지</h2>
+    <form id="loginForm">
+        <label for="domain">Domain:</label><br>
+        <input type="text" id="domain" name="domain" value="https://gwa.giduzon.co.kr"><br>
+        <label for="id">ID:</label><br>
+        <input type="text" id="id" name="id" ><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" ><br>
+        <label for="groupSeq">Group Sequence:</label><br>
+        <input type="text" id="groupSeq" name="groupSeq" value="gcmsAmaranth32109"><br><br>
+        <input type="button" value="로그인" onclick="login()">
+    </form>
+    <div id="loginResult"></div> <!-- 결과를 출력할 요소 -->
+    <div>hash : <label id="hashtxt"></label></div>
+    <div>token : <label id="tokentxt"></label></div>
+    
+    <br><br>
+    <div>
+        <label for="requestType">요청데이터 타입:</label>
+        <select id="requestType" onchange="populateRequestData()">
+            <option value="-">-</option>
+            <option value="계정과목조회">계정과목조회</option>
+            <option value="자동전표전송">자동전표전송</option>
+        </select>
+        <input type="button" value="실행" onclick="invoke()">
+    </div>
+    <div>
+        <label for="requestData">요청데이터:</label><br>
+        <textarea id="requestData" rows="4" cols="100"></textarea>
+    </div>
+    <div>
+        <label for="responseData">반응데이터:</label><br>
+        <textarea id="responseData" rows="4" cols="100" readonly></textarea>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+
+        var url ='';
+
+        function populateRequestData() {
+            var selectedRequestType = document.getElementById("requestType").value;
+            var requestData = "";
+
+            // 선택한 요청 타입에 따라 requestData를 설정
+            if (selectedRequestType === "계정과목조회") {
+                requestData = {
+                    coCd: "1000",
+                    acctCd: "1080000"
+                };
+                url = "/financial/openApi/autoDocu/00a00002"
+            } else if (selectedRequestType === "자동전표전송") {
+               requestData = {
+                "data": [
+    {
+      "inDivCd": "1000",
+      "menuDt": "20240118",
+      "menuSq": 1,
+      "menuLnSq": 1,
+      "isuDoc": "품의내역예제",
+      "drcrFg": "4",
+      "acctCd": "1010000",
+      "trCd": "0001",
+      "trNm": "1",
+      "acctAm": 10000.0,
+      "attrCd": "1",
+      "rmkDc": "적요",
+      "docuTy": "1",
+      "vatDivCd": "",
+      "issDt": "",
+      "taxFg": "",
+      "nonsubTy": "",
+      "supAm": 0.0,
+      "dummy1": "",
+      "cashAm": 0.0,
+      "billAm": 0.0,
+      "ctNb": "",
+      "jeonjaYn": ""
+    },
+    {
+      "inDivCd": "1000",
+      "menuDt": "20240118",
+      "menuSq": 1,
+      "menuLnSq": 2,
+      "isuDoc": "품의내역예제",
+      "drcrFg": "4",
+      "acctCd": "2550000",
+      "trCd": "0001",
+      "trNm": "1",
+      "acctAm": 10000.0,
+      "attrCd": "1",
+      "rmkDc": "적요",
+      "docuTy": "2",
+      "vatDivCd": "1000",
+      "issDt": "20230316",
+      "taxFg": "11",
+      "nonsubTy": "",
+      "supAm": 10000.0,
+      "dummy1": "",
+      "cashAm": 0.0,
+      "billAm": 0.0,
+      "ctNb": "",
+      "jeonjaYn": "1"
+    }
+  ]
+
+               }
+               url = "/financial/acb6010/sendData";
+            }
+
+            // JSON 데이터를 문자열로 변환하여 requestData 텍스트 창에 설정
+            document.getElementById("requestData").value = JSON.stringify(requestData, null, 2);
+        }
+
+        // 랜덤한 트랜잭션 ID를 생성하는 함수
+        function getTransactionId() {
+        var transactionId = '';
+
+        for (var i = 0; i < 32; i++) {
+            transactionId += Math.floor((i + Math.random()) * 0x10000).toString(16).substring(0, 1);
+        }
+        return transactionId;
+        }
+
+
+        // 현재 타임스탬프를 가져오는 함수
+        function getTimestamp() {
+            return Math.floor(new Date().getTime() / 1000).toString();
+        }
+
+        // 로그인을 수행하는 함수
+    function login() {
+    // 사용자가 입력한 도메인, 아이디, 비밀번호, 그룹 시퀀스를 가져옵니다.
+    var domain = document.getElementById("domain").value;
+    var id = document.getElementById("id").value;
+    var password = document.getElementById("password").value;
+    var groupSeq = document.getElementById("groupSeq").value;
+    var loginApiUrl = "/gw/gw050A02"; // 로그인 API URL
+
+    // 랜덤한 트랜잭션 ID를 생성합니다.
+    var transactionId = getTransactionId();
+    // 현재 타임스탬프를 가져옵니다.
+    var timestamp = getTimestamp();
+
+    // 로그인 API의 URL을 구성합니다.
+    var loginUrl = domain + loginApiUrl + "?loginId=" + encodeURIComponent(btoa(id)) +
+                   "&password=" + encodeURIComponent(btoa(password)) +
+                   "&groupSeq=" + groupSeq +
+                   "&simpleLoginCheck=Y";
+
+    var authToken,curdate;
+
+    // 토큰 요청을 위한 XMLHttpRequest 객체를 생성합니다.
+    var tokenRequest = new XMLHttpRequest();
+    tokenRequest.open("GET", domain + "/get_token/?url=" + loginApiUrl, true);
+    tokenRequest.setRequestHeader("Content-Type", "application/json");
+    tokenRequest.setRequestHeader("transaction-id", transactionId);
+    
+    tokenRequest.onreadystatechange = function () {
+        if (tokenRequest.readyState === XMLHttpRequest.DONE) {
+            if (tokenRequest.status === 200) {
+                // 토큰 응답을 파싱하여 토큰과 현재 날짜를 가져옵니다.
+                var tokenResponse = JSON.parse(tokenRequest.responseText);
+                authToken = tokenResponse.token;
+                curdate = tokenResponse.cur_date;
+
+                // 서명을 구성합니다.
+                
+                var signature = authToken +curdate +transactionId + loginApiUrl;
+
+                // 로그인 요청을 위한 XMLHttpRequest 객체를 생성합니다.
+                var loginRequest = new XMLHttpRequest();
+                loginRequest.open("POST", loginUrl , true);
+                loginRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                loginRequest.setRequestHeader("transaction-id", transactionId);
+                loginRequest.setRequestHeader("timestamp", timestamp);
+                loginRequest.setRequestHeader("Authorization", "Bearer undefined");
+                loginRequest.setRequestHeader("ContentEncoding", "utf-8");
+                //loginRequest.setRequestHeader("signature", signature);
+                loginRequest.setRequestHeader("signature",btoa(CryptoJS.SHA256(signature).toString(CryptoJS.enc.Latin1)));
+                loginRequest.onreadystatechange = function () {
+                    if (loginRequest.readyState === XMLHttpRequest.DONE) {
+                        if (loginRequest.status === 200) {
+
+                            // 로그인 성공 시 처리할 코드를 여기에 추가합니다.
+                            var responseData = JSON.parse(loginRequest.responseText);
+                            var hash_key = responseData.resultData.sessionInfo.hash_key;
+                            var auth_a_token = responseData.resultData.sessionInfo.auth_a_token
+
+                            // 로그인 성공 메시지를 화면에 표시합니다.
+                            document.getElementById("loginResult").innerText = "로그인성공!";
+                            document.getElementById("tokentxt").innerText = auth_a_token
+                            document.getElementById("hashtxt").innerText = hash_key
+
+                        } else {
+                            // 로그인 실패 시 처리할 코드를 여기에 추가합니다.
+                            // 로그인 실패 메시지를 화면에 표시합니다.
+                            document.getElementById("loginResult").innerText = "Login failed! Status: " + loginRequest.status;
+                        }
+                    }
+                };
+                // 로그인 요청을 전송합니다.
+                loginRequest.send();
+            } else {
+                // 토큰을 가져오는 중에 발생한 오류를 처리합니다.
+                // 오류 메시지를 화면에 표시합니다.
+                document.getElementById("loginResult").innerText = "Error getting token: " + tokenRequest.statusText;
+            }
+        }
+    };
+    // 토큰 요청을 전송합니다.
+    tokenRequest.send();
+}
+
+function invoke() {
+
+  // api Url 설정
+// var requestUrl = "/financial/openApi/autoDocu/00a00002"
+//var url = "/financial/openApi/autoDocu/00a00002"
+var transactionId = getTransactionId(); // 랜덤한 문자열(30자) 생성 함수
+var timestamp = getTimestamp() // 현재 시간의 UNIX timestamp (초 단위)
+var authorization = "Bearer " + document.getElementById("tokentxt").textContent; // ACCESS_TOKEN 변수는 이전에 얻은 인증 토큰으로 대체해야 합니다.
+var value = document.getElementById("tokentxt").textContent + transactionId + timestamp + url; // 위에서 설명한 value 생성
+var groupSeq = document.getElementById("groupSeq").value;
+
+// Base64 인코딩
+var signature =  CryptoJS.HmacSHA256(value, document.getElementById("hashtxt").textContent).toString(CryptoJS.enc.Base64);
+
+console.log(signature);
+
+var request = new XMLHttpRequest();
+request.open("POST",document.getElementById("domain").value + url,false);
+
+request.setRequestHeader("Content-Type", "application/json");
+request.setRequestHeader("Content-Encoding", "utf-8");
+request.setRequestHeader("transaction-id", transactionId);
+request.setRequestHeader("authorization", authorization);
+request.setRequestHeader("wehago-sign", signature);
+request.setRequestHeader("timestamp", timestamp);
+
+
+var requestData = document.getElementById("requestData").value; // textarea에서 데이터 가져오기
+var bytes = new TextEncoder().encode(requestData); // 텍스트를 바이트 배열로 인코딩
+
+request.onreadystatechange = function () {
+        if (request.readyState === XMLHttpRequest.DONE) {
+            if (request.status === 200) {
+                // 로그인 성공 시 처리할 코드를 여기에 추가합니다.
+                var responseData = JSON.parse(request.responseText);
+                // 로그인 성공 메시지를 화면에 표시합니다.
+                document.getElementById("responseData").innerText = JSON.stringify(responseData);
+            } else {
+                // 오류 메시지를 화면에 표시합니다.
+                document.getElementById("responseData").innerText = request.statusText;
+
+            }
+        }
+        else
+        {
+            //document.getElementById("responseData").innerText =  request.statusText;
+            console.log(request.statusText);
+        }
+        
+    };
+    // 요청 전송
+    request.send(bytes); 
+
+}
+
+</script>
+</body>
+</html>
