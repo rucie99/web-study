@@ -45,10 +45,11 @@
     </div>
     <div id="tabulator"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
     <script>
-
+       
         var url ='';
-
+       
         function populateRequestData() {
             var selectedRequestType = document.getElementById("requestType").value;
             var requestData = "";
@@ -56,94 +57,96 @@
             // 선택한 요청 타입에 따라 requestData를 설정
             if (selectedRequestType === "계정과목조회") {
                 requestData = {
-                    coCd: "1000",
-                    acctCd: "1080000"
+                    "coCd": "1000",
+                    "acctCd": "1080000"
                 };
                 url = "/financial/openApi/autoDocu/00a00002"
-            } else if (selectedRequestType === "자동전표전송") {
+
+            } else if (selectedRequestType === "자동전표전송") 
+            {
                requestData = {
                 "data": [
-    {
-      "inDivCd": "1000",
-      "menuDt": "20240118",
-      "menuSq": 1,
-      "menuLnSq": 1,
-      "isuDoc": "품의내역예제",
-      "drcrFg": "4",
-      "acctCd": "4010001",
-      "trCd": "0001",
-      "trNm": "1",
-      "acctAm": 10000.0,
-      "attrCd": "1",
-      "rmkDc": "적요",
-      "docuTy": "1",
-      "vatDivCd": "",
-      "issDt": "",
-      "taxFg": "",
-      "nonsubTy": "",
-      "supAm": 0.0,
-      "dummy1": "",
-      "cashAm": 0.0,
-      "billAm": 0.0,
-      "ctNb": "",
-      "jeonjaYn": ""
-    },
-    {
-      "inDivCd": "1000",
-      "menuDt": "20240118",
-      "menuSq": 1,
-      "menuLnSq": 2,
-      "isuDoc": "품의내역예제",
-      "drcrFg": "4",
-      "acctCd": "2550000",
-      "trCd": "0001",
-      "trNm": "1",
-      "acctAm": 10000.0,
-      "attrCd": "1",
-      "rmkDc": "적요",
-      "docuTy": "2",
-      "vatDivCd": "1000",
-      "issDt": "20230316",
-      "taxFg": "11",
-      "nonsubTy": "",
-      "supAm": 10000.0,
-      "dummy1": "",
-      "cashAm": 0.0,
-      "billAm": 0.0,
-      "ctNb": "",
-      "jeonjaYn": "1"
-    },
-    {
-      "inDivCd": "1000",
-      "menuDt": "20240118",
-      "menuSq": 1,
-      "menuLnSq": 2,
-      "isuDoc": "품의내역예제",
-      "drcrFg": "3",
-      "acctCd": "1080000",
-      "trCd": "0001",
-      "trNm": "1",
-      "acctAm": 11000.0,
-      "attrCd": "1",
-      "rmkDc": "적요",
-      "docuTy": "2",
-      "vatDivCd": "1000",
-      "issDt": "20230316",
-      "taxFg": "",
-      "nonsubTy": "",
-      "supAm": 11000.0,
-      "dummy1": "",
-      "cashAm": 0.0,
-      "billAm": 0.0,
-      "ctNb": "",
-      "jeonjaYn": "1"
-    }
-  ]
-
+            {   
+                    "inDivCd": "1000",
+                    "menuDt": "20240118",
+                    "menuSq": 1,
+                    "menuLnSq": 1,
+                    "isuDoc": "품의내역예제",
+                    "drcrFg": "4",
+                    "acctCd": "4010001",
+                    "trCd": "0001",
+                    "trNm": "1",
+                    "acctAm": 10000.0,
+                    "attrCd": "1",
+                    "rmkDc": "적요",
+                    "docuTy": "1",
+                    "vatDivCd": "",
+                    "issDt": "",
+                    "taxFg": "",
+                    "nonsubTy": "",
+                    "supAm": 0.0,
+                    "dummy1": "",
+                    "cashAm": 0.0,
+                    "billAm": 0.0,
+                    "ctNb": "",
+                    "jeonjaYn": ""
+                    },
+                    {
+                    "inDivCd": "1000",
+                    "menuDt": "20240118",
+                    "menuSq": 1,
+                    "menuLnSq": 2,
+                    "isuDoc": "품의내역예제",
+                    "drcrFg": "4",
+                    "acctCd": "2550000",
+                    "trCd": "0001",
+                    "trNm": "1",
+                    "acctAm": 10000.0,
+                    "attrCd": "1",
+                    "rmkDc": "적요",
+                    "docuTy": "2",
+                    "vatDivCd": "1000",
+                    "issDt": "20230316",
+                    "taxFg": "11",
+                    "nonsubTy": "",
+                    "supAm": 10000.0,
+                    "dummy1": "",
+                    "cashAm": 0.0,
+                    "billAm": 0.0,
+                    "ctNb": "",
+                    "jeonjaYn": "1"
+                    },
+                    {
+                    "inDivCd": "1000",
+                    "menuDt": "20240118",
+                    "menuSq": 1,
+                    "menuLnSq": 2,
+                    "isuDoc": "품의내역예제",
+                    "drcrFg": "3",
+                    "acctCd": "1080000",
+                    "trCd": "0001",
+                    "trNm": "1",
+                    "acctAm": 11000.0,
+                    "attrCd": "1",
+                    "rmkDc": "적요",
+                    "docuTy": "2",
+                    "vatDivCd": "1000",
+                    "issDt": "20230316",
+                    "taxFg": "",
+                    "nonsubTy": "",
+                    "supAm": 11000.0,
+                    "dummy1": "",
+                    "cashAm": 0.0,
+                    "billAm": 0.0,
+                    "ctNb": "",
+                    "jeonjaYn": "1"
+                    }
+                ]
                }
-               url = "/financial/acb6010/sendData";
-
-
+               
+                url = "/financial/acb6010/sendData";
+     
+               //
             }
 
             // JSON 데이터를 문자열로 변환하여 requestData 텍스트 창에 설정
@@ -151,20 +154,7 @@
 
             // JSON 문자열을 JavaScript 객체로 변환
          
-            const table = new Tabulator("#tabulator", {
-            height:"200px",
-            data: requestData.data,
-            // 컬럼 정의
-            columns: [
-                {title: "거래일자", field: "menuDt"},
-                {title: "거래구분", field: "drcrFg"},
-                {title: "계좌코드", field: "acctCd"},
-                {title: "거래내역", field: "isuDoc"},
-                {title: "세무구분", field: "taxFg"},
-                {title: "거래처코드", field: "trCd"},
-                {title: "거래금액", field: "acctAm", type: "money"},
-            ],
-            });
+           
 
         }
 
@@ -282,8 +272,6 @@ var groupSeq = document.getElementById("groupSeq").value;
 // Base64 인코딩
 var signature =  CryptoJS.HmacSHA256(value, document.getElementById("hashtxt").textContent).toString(CryptoJS.enc.Base64);
 
-console.log(signature);
-
 var request = new XMLHttpRequest();
 request.open("POST",document.getElementById("domain").value + url,false);
 
@@ -305,6 +293,26 @@ request.onreadystatechange = function () {
                 var responseData = JSON.parse(request.responseText);
                 // 로그인 성공 메시지를 화면에 표시합니다.
                 document.getElementById("responseData").innerText = JSON.stringify(responseData);
+                var fields = Object.keys(responseData.resultData[0]);
+                var titles = fields.map((field) => {
+                // 컬럼 제목 정의 (예: "거래일자" -> "거래 날짜")
+                switch (field) {
+
+                default:
+                return field;
+                }
+                });
+                const table = new Tabulator("#tabulator", {
+                height:"200px",
+                layout:"fitColumns",
+                data: responseData.resultData,
+                // 컬럼 정의
+                columns: fields.map((field, idx) => ({
+                title: titles[idx],
+                field,
+                type: field === "acctAm" ? "money" : undefined,
+                })),
+                });
             } else {
                 // 오류 메시지를 화면에 표시합니다.
                 document.getElementById("responseData").innerText = request.statusText;
@@ -313,13 +321,14 @@ request.onreadystatechange = function () {
         }
         else
         {
-            //document.getElementById("responseData").innerText =  request.statusText;
-            console.log(request.statusText);
+            document.getElementById("responseData").innerText =  request.statusText;
+            
         }
         
     };
     // 요청 전송
-    request.send(bytes); 
+                request.send(bytes); 
+                
 
 }
 
