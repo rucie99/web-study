@@ -32,8 +32,12 @@
             <option value="-">-</option>
             <option value="계정과목조회">계정과목조회</option>
             <option value="자동전표전송">자동전표전송</option>
+            <option value="거래처조회">거래처조회</option>
+            <option value="사원조회">사원조회</option>
+
         </select>
         <input type="button" value="실행" onclick="invoke()">
+        <div><input type="text" id="aurl"></div>
     </div>
     <div>
         <label for="requestData">요청데이터:</label><br>
@@ -148,13 +152,40 @@
      
                //
             }
+            else if (selectedRequestType === "거래처조회")
+            {
+                requestData = {
+
+                 "coCd" : "1000",
+                 "trCd" : "45787"
+   
+                }
+
+                url = "/system/systemOpenApi/00s0000";
+                
+
+            }
+            
+            else if (selectedRequestType === "사원조회")
+            {
+                requestData = {
+
+                 "coCd" : "1000",
+                 "divCd" : "1000"
+   
+                }
+
+                url = "/system/openapi/getEmployeeList";
+                
+
+            }
 
             // JSON 데이터를 문자열로 변환하여 requestData 텍스트 창에 설정
             document.getElementById("requestData").value = JSON.stringify(requestData, null, 2);
+            document.getElementById("aurl").value = url;
 
             // JSON 문자열을 JavaScript 객체로 변환
          
-           
 
         }
 
@@ -282,6 +313,13 @@ request.setRequestHeader("authorization", authorization);
 request.setRequestHeader("wehago-sign", signature);
 request.setRequestHeader("timestamp", timestamp);
 
+            var selectedRequestType = document.getElementById("requestType").value;
+
+            // 선택한 요청 타입에 따라 requestData를 설정
+            if (selectedRequestType === "거래처조회") {
+                request.setRequestHeader("callerName", "ERP_32109");
+                request.setRequestHeader("groupSeq",groupSeq);
+            }
 
 var requestData = document.getElementById("requestData").value; // textarea에서 데이터 가져오기
 var bytes = new TextEncoder().encode(requestData); // 텍스트를 바이트 배열로 인코딩
@@ -307,6 +345,7 @@ request.onreadystatechange = function () {
                 layout:"fitColumns",
                 data: responseData.resultData,
                 // 컬럼 정의
+                resizeColumns: true,
                 columns: fields.map((field, idx) => ({
                 title: titles[idx],
                 field,
