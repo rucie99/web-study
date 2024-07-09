@@ -42,7 +42,7 @@
     </div>
     <div>
         <label for="requestData">요청데이터:</label><br>
-        <textarea id="requestData" rows="4" cols="100"></textarea>
+        <textarea id="requestData" rows="4" cols="100" readonly></textarea>
     </div>
     <div>
         <label for="responseData">응답데이터:</label><br>
@@ -180,7 +180,7 @@
                 
 
             }
-            
+
             else if (selectedRequestType === "전표조회")
             {
                 requestData = {
@@ -200,6 +200,7 @@
                 
 
             }
+
 
             // JSON 데이터를 문자열로 변환하여 requestData 텍스트 창에 설정
             document.getElementById("requestData").value = JSON.stringify(requestData, null, 2);
@@ -362,8 +363,8 @@ request.onreadystatechange = function () {
                 }
                 });
                 const table = new Tabulator("#tabulator", {
-                height:"200px",
-                layout:"fitColumns",
+                height:"500px",
+                layout:"fitDataFill",
                 data: responseData.resultData,
                 // 컬럼 정의
                 resizeColumns: true,
