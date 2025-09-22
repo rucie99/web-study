@@ -191,23 +191,64 @@
         const apiInfo = {
             "사원등록조회": {
                 "URL": "/apiproxy/api16S05",
-                "json": {
-                    "coCd": "1000"
+                "jsonTemplate": {
+                    "header": {
+                        "groupSeq": "", // This will be filled dynamically
+                        "empSeq": 1,
+                        "tId": "",
+                        "pId": ""
+                    },
+                    "body": {
+                        "coCd": "1000",
+                        "divCd": "1000"
+                    }
                 }
             },
             "부서등록조회": {
                 "URL": "/apiproxy/api16S10",
-                "json": {
+                "jsonTemplate": {
                     "coCd": "1000"
                 }
             }
         };
 
+        const columnMap = {
+            "empCd": "사원코드",
+            "empNm": "사원명",
+            "divCd": "사업장코드",
+            "divNm": "사업장명",
+            "deptCd": "부서코드",
+            "deptNm": "부서명",
+            "posCd": "직위코드",
+            "posNm": "직위명",
+            "resIdNum": "주민번호",
+            "hpNum": "휴대폰번호",
+            "email": "이메일",
+            "joinDt": "입사일",
+            "retireDt": "퇴사일"
+        };
+        
         function updateApiInfo() {
             const apiType = document.getElementById('apiType').value;
             const selectedApiInfo = apiInfo[apiType];
-            document.getElementById('url').value = selectedApiInfo.URL;
-            document.getElementById('requestBody').value = JSON.stringify(selectedApiInfo.json, null, 2);
+            
+            if (selectedApiInfo) {
+                document.getElementById('url').value = selectedApiInfo.URL;
+                
+                let requestBodyJson;
+                if (selectedApiInfo.jsonTemplate.header) {
+                    const tempJson = JSON.parse(JSON.stringify(selectedApiInfo.jsonTemplate));
+                    tempJson.header.groupSeq = document.getElementById("groupSeq").value;
+                    requestBodyJson = tempJson;
+                } else {
+                    requestBodyJson = selectedApiInfo.jsonTemplate;
+                }
+                
+                document.getElementById('requestBody').value = JSON.stringify(requestBodyJson, null, 2);
+            } else {
+                document.getElementById('url').value = '';
+                document.getElementById('requestBody').value = '{}';
+            }
         }
 
         async function sendRequest() {
@@ -276,7 +317,7 @@
                     const headerRow = document.createElement('tr');
                     keys.forEach(key => {
                         const th = document.createElement('th');
-                        th.textContent = key;
+                        th.textContent = columnMap[key] || key;
                         headerRow.appendChild(th);
                     });
                     thead.appendChild(headerRow);
@@ -315,6 +356,7 @@
             }
             return result;
         }
+
 
         updateApiInfo();
     </script>
