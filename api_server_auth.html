@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹 API서버인증</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a4260;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            width: 180px;
+            min-width: 120px;
+            margin-bottom: 0;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 120px;
+        }
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+            background-size: 16px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 25px;
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        /* New Table Styles */
+        #dataGrid {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .data-table th {
+            background-color: #e9ecef;
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .data-table tbody tr:hover {
+            background-color: #e2f0fb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>웹 API 요청</h1>
+        <form id="apiForm">
+            <div class="form-group">
+                <label for="domain">Domain:</label>
+                <input type="text" id="domain" name="domain" required>
+            </div>
+            <div class="form-group">
+                <label for="url">URL:</label>
+                <input type="text" id="url" name="url" required>
+            </div>
+            <div class="form-group">
+                <label for="groupSeq">groupSeq:</label>
+                <input type="text" id="groupSeq" name="groupSeq" required>
+            </div>
+            <div class="form-group">
+                <label for="callerName">callerName:</label>
+                <input type="text" id="callerName" name="callerName" required>
+            </div>
+            <div class="form-group">
+                <label for="accessToken">ACCESS_TOKEN:</label>
+                <input type="text" id="accessToken" name="accessToken" required>
+            </div>
+            <div class="form-group">
+                <label for="hashKey">HASH_KEY:</label>
+                <input type="text" id="hashKey" name="hashKey" required>
+            </div>
+            <div class="form-group">
+                <label for="apiType">API 타입 선택:</label>
+                <select id="apiType" onchange="updateApiInfo()">
+                    <option value="-">-</option>
+                    <option value="사원등록조회">사원등록조회</option>
+                    <option value="부서등록조회">부서등록조회</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="requestBody">요청 데이터 (JSON):</label>
+                <textarea id="requestBody" name="requestBody" rows="5">{}</textarea>
+            </div>
+            <button type="button" onclick="sendRequest()">요청 보내기</button>
+        </form>
+
+        <div id="result"></div>
+        <div id="dataGrid"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/hmac-sha256.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/enc-base64.min.js"></script>
+    <script>
+        const apiInfo = {
+            "사원등록조회": {
+                "URL": "/apiproxy/api16S10",
+                "json": {
+                    "coCd": "1000"
+                }
+            },
+            "부서등록조회": {
+                "URL": "/apiproxy/api16S05",
+                "json": {
+                    "coCd": "1000"
+                }
+            }
+        };
+
+        function updateApiInfo() {
+            const apiType = document.getElementById('apiType').value;
+            const selectedApiInfo = apiInfo[apiType];
+            document.getElementById('url').value = selectedApiInfo.URL;
+            document.getElementById('requestBody').value = JSON.stringify(selectedApiInfo.json, null, 2);
+        }
+
+        async function sendRequest() {
+            const domain = document.getElementById('domain').value;
+            const urlPath = document.getElementById('url').value;
+            const groupSeq = document.getElementById('groupSeq').value;
+            const callerName = document.getElementById('callerName').value;
+            const accessToken = document.getElementById('accessToken').value;
+            const hashKey = document.getElementById('hashKey').value;
+            const requestBodyText = document.getElementById('requestBody').value;
+            let requestData = {};
+            try {
+                requestData = JSON.parse(requestBodyText);
+            } catch (error) {
+                alert("유효하지 않은 JSON 형식입니다.");
+                return;
+            }
+
+            const transactionId = generateTransactionId();
+            const timestamp = Math.floor(Date.now() / 1000);
+            const authorization = `Bearer ${accessToken}`;
+            const requestUrl = `${domain}${urlPath}`;
+            const valueToSign = accessToken + transactionId + timestamp + urlPath;
+
+            const hmacDigest = CryptoJS.HmacSHA256(valueToSign, hashKey);
+            const wehagoSign = CryptoJS.enc.Base64.stringify(hmacDigest);
+
+            const resultDiv = document.getElementById('result');
+            const dataGridDiv = document.getElementById('dataGrid');
+            dataGridDiv.innerHTML = ''; // Clear previous table
+
+            try {
+                const response = await fetch(requestUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authorization,
+                        'wehago-sign': wehagoSign,
+                        'transaction-id': transactionId,
+                        'timestamp': timestamp,
+                        'callerName': callerName,
+                        'groupSeq': groupSeq
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    resultDiv.textContent = `오류 발생: ${response.status} - ${JSON.stringify(responseData, null, 2)}`;
+                    return;
+                }
+
+                resultDiv.textContent = `응답:\n${JSON.stringify(responseData, null, 2)}`;
+
+                // Display data in a table
+                const data = responseData.resultData;
+                if (data && Array.isArray(data) && data.length > 0) {
+                    const table = document.createElement('table');
+                    table.className = 'data-table';
+                    const thead = document.createElement('thead');
+                    const tbody = document.createElement('tbody');
+                    const keys = Object.keys(data[0]);
+
+                    // Create table header
+                    const headerRow = document.createElement('tr');
+                    keys.forEach(key => {
+                        const th = document.createElement('th');
+                        th.textContent = key;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    // Create table body
+                    data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        keys.forEach(key => {
+                            const td = document.createElement('td');
+                            td.textContent = item[key];
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    dataGridDiv.appendChild(table);
+
+                } else {
+                    const noData = document.createElement('p');
+                    noData.textContent = "표시할 데이터가 없습니다.";
+                    dataGridDiv.appendChild(noData);
+                }
+
+            } catch (error) {
+                console.error('요청 실패:', error);
+                resultDiv.textContent = `요청 실패: ${error}`;
+            }
+        }
+
+        function generateTransactionId() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 32; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
+        updateApiInfo();
+    </script>
+</body>
+</html>
